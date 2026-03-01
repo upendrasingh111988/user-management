@@ -39,7 +39,7 @@ function App() {
     });
 
     fetchUsers();
-    alert("User Created!");
+    alert("User Created Successfully!");
   };
 
   const fetchUsers = async () => {
@@ -53,9 +53,12 @@ function App() {
       const response = await fetch(
         `http://localhost:8085/api/v1/users/${searchId}`
       );
+
       if (!response.ok) throw new Error();
+
       const data = await response.json();
       setSingleUser(data);
+
     } catch {
       alert("User not found!");
       setSingleUser(null);
@@ -77,6 +80,10 @@ function App() {
 
       alert("User Updated Successfully!");
       fetchUsers();
+
+      setUpdateUserId("");
+      setUpdateUserData({ name: "", email: "", about: "" });
+
     } catch {
       alert("Update failed!");
     }
@@ -86,6 +93,7 @@ function App() {
     await fetch(`http://localhost:8085/api/v1/users/${id}`, {
       method: "DELETE"
     });
+
     fetchUsers();
   };
 
@@ -96,20 +104,27 @@ function App() {
   return (
     <div className="app-container">
 
+      {/* ===== HEADER ===== */}
       <header className="header">
-        <h1>User Management System</h1>
+        <div className="header-content">
+          <h1>User Management Dashboard</h1>
+          <p>Manage, Update & Control Users Seamlessly</p>
+        </div>
       </header>
 
+      {/* ===== MAIN CONTENT ===== */}
       <main className="main-content">
 
+        {/* CREATE USER */}
         <div className="card">
           <h2>Create User</h2>
           <input type="text" name="name" placeholder="Name" onChange={handleChange} />
           <input type="email" name="email" placeholder="Email" onChange={handleChange} />
           <input type="text" name="about" placeholder="About" onChange={handleChange} />
-          <button className="btn primary" onClick={createUser}>Submit</button>
+          <button className="btn primary" onClick={createUser}>Create</button>
         </div>
 
+        {/* SEARCH USER */}
         <div className="card">
           <h2>Search User</h2>
           <input
@@ -118,17 +133,18 @@ function App() {
             value={searchId}
             onChange={(e) => setSearchId(e.target.value)}
           />
-          <button className="btn" onClick={fetchUserById}>Search</button>
+          <button className="btn primary" onClick={fetchUserById}>Search</button>
 
           {singleUser && (
             <div className="user-card">
               <h3>{singleUser.name}</h3>
-              <p>{singleUser.email}</p>
-              <p>{singleUser.about}</p>
+              <p><strong>Email:</strong> {singleUser.email}</p>
+              <p><strong>About:</strong> {singleUser.about}</p>
             </div>
           )}
         </div>
 
+        {/* UPDATE USER */}
         <div className="card">
           <h2>Update User</h2>
           <input
@@ -161,22 +177,32 @@ function App() {
           <button className="btn warning" onClick={updateUser}>Update</button>
         </div>
 
+        {/* USER LIST */}
         <div className="card">
-          <h2>User List</h2>
+          <h2>All Users</h2>
           {users.map((u) => (
             <div key={u.userId} className="user-card">
               <h3>{u.name}</h3>
-              <p>{u.email}</p>
-              <p>{u.about}</p>
-              <button className="btn danger" onClick={() => deleteUser(u.userId)}>Delete</button>
+              <p><strong>Email:</strong> {u.email}</p>
+              <p><strong>About:</strong> {u.about}</p>
+              <button
+                className="btn danger"
+                onClick={() => deleteUser(u.userId)}
+              >
+                Delete
+              </button>
             </div>
           ))}
         </div>
 
       </main>
 
+      {/* ===== FOOTER ===== */}
       <footer className="footer">
-        © 2026 User Management App | Built with React & Spring Boot
+        <div className="footer-content">
+          <p>© 2026 User Management System</p>
+          <p>Built with React & Spring Boot</p>
+        </div>
       </footer>
 
     </div>

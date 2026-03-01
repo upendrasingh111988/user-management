@@ -1,0 +1,153 @@
+/* ===== GLOBAL STYLES ===== */
+
+body {
+  margin: 0;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background: #f1f5f9;
+  color: #1e293b;
+}
+
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* ===== HEADER ===== */
+
+.header {
+  background: linear-gradient(135deg, #1e3a8a, #2563eb);
+  color: white;
+  padding: 30px 20px;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.header-content h1 {
+  margin: 0;
+  font-size: 32px;
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+
+.header-content p {
+  margin-top: 8px;
+  font-size: 15px;
+  opacity: 0.9;
+}
+
+/* ===== MAIN DASHBOARD AREA ===== */
+
+.main-content {
+  flex: 1;
+  padding: 40px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: 25px;
+}
+
+/* ===== CARD DESIGN ===== */
+
+.card {
+  background: white;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
+}
+
+.card h2 {
+  margin-bottom: 18px;
+  font-size: 20px;
+  border-left: 4px solid #2563eb;
+  padding-left: 10px;
+}
+
+/* ===== INPUT FIELDS ===== */
+
+input {
+  width: 100%;
+  padding: 10px 12px;
+  margin-bottom: 14px;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+input:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+/* ===== BUTTONS ===== */
+
+.btn {
+  padding: 9px 16px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  margin-top: 5px;
+  transition: all 0.2s ease;
+  color: white;
+}
+
+.primary {
+  background: #2563eb;
+}
+
+.primary:hover {
+  background: #1e40af;
+}
+
+.warning {
+  background: #f59e0b;
+}
+
+.warning:hover {
+  background: #d97706;
+}
+
+.danger {
+  background: #dc2626;
+}
+
+.danger:hover {
+  background: #991b1b;
+}
+
+/* ===== USER CARD ===== */
+
+.user-card {
+  background: #f8fafc;
+  padding: 12px;
+  border-radius: 8px;
+  margin-top: 10px;
+  border: 1px solid #e2e8f0;
+}
+
+.user-card h3 {
+  margin: 0 0 6px;
+}
+
+/* ===== FOOTER ===== */
+
+.footer {
+  background: #0f172a;
+  color: #cbd5e1;
+  text-align: center;
+  padding: 20px 10px;
+  font-size: 14px;
+}
+
+.footer-content p {
+  margin: 4px 0;
+}
