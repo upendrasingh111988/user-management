@@ -3,9 +3,12 @@ package com.user.controller;
 import com.user.entity.User;
 import com.user.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -31,12 +34,15 @@ public class UserController {
     public List<User> getAllUsers() {
         return userService.getAllUsers();
     }
+
+
     @GetMapping("/users/{userId}")
     public ResponseEntity<User> getUserById(@PathVariable Long userId){
 
         User user = userService.getUserById(userId);
         return ResponseEntity.ok(user);
     }
+
     @PutMapping("/users/{userId}")
     public ResponseEntity<User> updateUser(@PathVariable Long userId,
                                            @RequestBody User userDetails
@@ -49,6 +55,11 @@ public class UserController {
     public ResponseEntity<String> deleteUser( @PathVariable Long userId){
         userService.deleteUser(userId);
         return ResponseEntity.ok("User deleted Successfully..");
+    }
+
+    @GetMapping("/dashboard")
+    public String dashboard(Authentication authentication) {
+        return "Welcome " + authentication.getName();
     }
 
 }

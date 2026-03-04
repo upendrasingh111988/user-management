@@ -5,12 +5,11 @@
 
   <modelVersion>4.0.0</modelVersion>
 
-  <!-- Spring Boot Parent (ONLY here) -->
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
     <version>3.2.5</version>
-    <relativePath/> <!-- VERY IMPORTANT -->
+    <relativePath/>
   </parent>
 
   <groupId>org.example</groupId>

@@ -4,6 +4,9 @@ import com.user.entity.User;
 import com.user.exception.ResourceNotFoundException;
 import com.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -37,13 +40,15 @@ public class UserService implements UserDetailsService {
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
-
+    @Cacheable(value = "users" , key = "#userId")
     public User getUserById(Long userId) {
+        System.out.println("Fetching from DB...");
         return userRepository.findById(userId)
                 .orElseThrow(() ->
                         new ResourceNotFoundException("User not found with id: " + userId));
     }
 
+    @CachePut(value = "users" , key = "#userId")
     public User updateUser(Long userId, User userDetails) {
         User existingUser = userRepository.findById(userId)
                 .orElseThrow(() ->
@@ -56,6 +61,7 @@ public class UserService implements UserDetailsService {
         return userRepository.save(existingUser);
     }
 
+    @CacheEvict(value = "users", key = "#userId")
     public void deleteUser(Long userId) {
         User existingUserById = userRepository.findById(userId)
                 .orElseThrow(() ->

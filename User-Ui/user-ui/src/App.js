@@ -3,6 +3,15 @@ import "./App.css";
 
 function App() {
 
+  /* ================= LOGIN STATE ================= */
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [loginData, setLoginData] = useState({
+    username: "",
+    password: ""
+  });
+  const [loggedInUser, setLoggedInUser] = useState("");
+
+  /* ================= USER CRUD STATE ================= */
   const [user, setUser] = useState({
     name: "",
     email: "",
@@ -20,6 +29,62 @@ function App() {
     about: ""
   });
 
+  /* ================= CHECK LOGIN ON LOAD ================= */
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    const username = localStorage.getItem("username");
+
+    if (token && username) {
+      setIsLoggedIn(true);
+      setLoggedInUser(username);
+      fetchUsers(token);
+    }
+  }, []);
+
+  /* ================= LOGIN FUNCTIONS ================= */
+  const handleLoginChange = (e) => {
+    setLoginData({ ...loginData, [e.target.name]: e.target.value });
+  };
+
+  const login = async () => {
+    const response = await fetch("http://localhost:8085/api/v1/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(loginData)
+    });
+
+    if (!response.ok) {
+      alert("Invalid credentials!");
+      return;
+    }
+
+    const data = await response.json();
+
+    localStorage.setItem("token", data.token);
+    localStorage.setItem("username", data.username);
+
+    setLoggedInUser(data.username);
+    setIsLoggedIn(true);
+
+    fetchUsers(data.token);
+  };
+
+  const logout = () => {
+    localStorage.clear();
+    setIsLoggedIn(false);
+    setLoggedInUser("");
+  };
+
+  /* ================= COMMON TOKEN HELPER ================= */
+  const getAuthHeader = () => {
+    const token = localStorage.getItem("token");
+    return {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer " + token
+    };
+  };
+
+  /* ================= CRUD FUNCTIONS ================= */
   const handleChange = (e) => {
     setUser({ ...user, [e.target.name]: e.target.value });
   };
@@ -34,7 +99,7 @@ function App() {
   const createUser = async () => {
     await fetch("http://localhost:8085/api/v1/createUser", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: getAuthHeader(),
       body: JSON.stringify(user)
     });
 
@@ -42,8 +107,16 @@ function App() {
     alert("User Created Successfully!");
   };
 
-  const fetchUsers = async () => {
-    const response = await fetch("http://localhost:8085/api/v1/users");
+  const fetchUsers = async (tokenParam) => {
+    const response = await fetch("http://localhost:8085/api/v1/users", {
+      method: "GET",
+      headers: tokenParam
+        ? {
+            "Authorization": "Bearer " + tokenParam
+          }
+        : getAuthHeader()
+    });
+
     const data = await response.json();
     setUsers(data);
   };
@@ -51,7 +124,11 @@ function App() {
   const fetchUserById = async () => {
     try {
       const response = await fetch(
-        `http://localhost:8085/api/v1/users/${searchId}`
+        `http://localhost:8085/api/v1/users/${searchId}`,
+        {
+          method: "GET",
+          headers: getAuthHeader()
+        }
       );
 
       if (!response.ok) throw new Error();
@@ -71,7 +148,7 @@ function App() {
         `http://localhost:8085/api/v1/users/${updateUserId}`,
         {
           method: "PUT",
-          headers: { "Content-Type": "application/json" },
+          headers: getAuthHeader(),
           body: JSON.stringify(updateUserData)
         }
       );
@@ -91,28 +168,53 @@ function App() {
 
   const deleteUser = async (id) => {
     await fetch(`http://localhost:8085/api/v1/users/${id}`, {
-      method: "DELETE"
+      method: "DELETE",
+      headers: getAuthHeader()
     });
 
     fetchUsers();
   };
 
-  useEffect(() => {
-    fetchUsers();
-  }, []);
+  /* ================= LOGIN SCREEN ================= */
+  if (!isLoggedIn) {
+    return (
+      <div className="login-container">
+        <h2>Login</h2>
+        <input
+          type="text"
+          name="username"
+          placeholder="Username"
+          onChange={handleLoginChange}
+        />
+        <input
+          type="password"
+          name="password"
+          placeholder="Password"
+          onChange={handleLoginChange}
+        />
+        <button className="btn primary" onClick={login}>
+          Login
+        </button>
+      </div>
+    );
+  }
 
+  /* ================= DASHBOARD ================= */
   return (
     <div className="app-container">
 
-      {/* ===== HEADER ===== */}
+      {/* HEADER */}
       <header className="header">
         <div className="header-content">
           <h1>User Management Dashboard</h1>
-          <p>Manage, Update & Control Users Seamlessly</p>
+          <p>Welcome, <strong>{loggedInUser}</strong></p>
+          <button className="btn danger" onClick={logout}>
+            Logout
+          </button>
         </div>
       </header>
 
-      {/* ===== MAIN CONTENT ===== */}
+      {/* MAIN CONTENT */}
       <main className="main-content">
 
         {/* CREATE USER */}
@@ -120,6 +222,9 @@ function App() {
           <h2>Create User</h2>
           <input type="text" name="name" placeholder="Name" onChange={handleChange} />
           <input type="email" name="email" placeholder="Email" onChange={handleChange} />
+          <input type="text" name="username" placeholder="username" onChange={handleChange} />
+          <input type="password" name="password" placeholder="password" onChange={handleChange} />
+          <input type="text" name="role" placeholder="role" onChange={handleChange} />
           <input type="text" name="about" placeholder="About" onChange={handleChange} />
           <button className="btn primary" onClick={createUser}>Create</button>
         </div>
@@ -167,6 +272,28 @@ function App() {
             value={updateUserData.email}
             onChange={handleUpdateChange}
           />
+           <input
+                      type="text"
+                      name="username"
+                      placeholder="New username"
+                      value={updateUserData.username}
+                      onChange={handleUpdateChange}
+            />
+             <input
+                                  type="password"
+                                  name="password"
+                                  placeholder="New password"
+                                  value={updateUserData.password}
+                                  onChange={handleUpdateChange}
+                        />
+
+                        <input
+                                                          type="text"
+                                                          name="role"
+                                                          placeholder="New role"
+                                                          value={updateUserData.role}
+                                                          onChange={handleUpdateChange}
+                                                />
           <input
             type="text"
             name="about"
@@ -197,7 +324,7 @@ function App() {
 
       </main>
 
-      {/* ===== FOOTER ===== */}
+      {/* FOOTER */}
       <footer className="footer">
         <div className="footer-content">
           <p>© 2026 User Management System</p>

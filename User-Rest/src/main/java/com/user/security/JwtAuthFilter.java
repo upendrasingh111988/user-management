@@ -5,14 +5,15 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-
 
 public class JwtAuthFilter extends OncePerRequestFilter {
 
@@ -33,15 +34,22 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         String authHeader = request.getHeader("Authorization");
-
         String username = null;
         String token = null;
 
+        // ✅ Extract token
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             token = authHeader.substring(7);
-            username = jwtService.extractUsername(token);
+
+            try {
+                username = jwtService.extractUsername(token);
+            } catch (Exception e) {
+                // Token invalid or expired
+                logger.error("JWT extraction failed: " + e.getMessage());
+            }
         }
 
+        // ✅ Validate and authenticate
         if (username != null &&
                 SecurityContextHolder.getContext().getAuthentication() == null) {
 
@@ -56,6 +64,12 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                                 null,
                                 userDetails.getAuthorities()
                         );
+
+                // 🔥🔥 THIS LINE FIXES 403 ISSUE
+                authToken.setDetails(
+                        new WebAuthenticationDetailsSource()
+                                .buildDetails(request)
+                );
 
                 SecurityContextHolder.getContext()
                         .setAuthentication(authToken);
